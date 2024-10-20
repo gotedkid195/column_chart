@@ -30,7 +30,7 @@
                         // Create a custom button using the chart.renderer
                         const chart = this;
                         chart.customButton = chart.renderer.button('Reset scoreboard', chart.plotWidth + chart.plotLeft - 110, 10, function () {
-                            eraWidget.triggerAction(configAction.action, 0, JSON.stringify({ value: null }));
+                            eraWidget.triggerAction(configAction.action, 0, JSON.stringify({ value: [] }));
                         }, {
                             zIndex: 3
                         })
@@ -86,8 +86,8 @@
                 }
                 newValue = valueTeminalBox;
                 valueTeminalBox = JSON.parse(valueTeminalBox);
-                // Check if the value is valid JSON
-                if (!valueTeminalBox || typeof valueTeminalBox !== "object") {
+
+                if (!valueTeminalBox || valueTeminalBox.length === 0) {
                     while (chart.series.length > 0) {
                         chart.series[0].remove(false); // Remove all series from the chart
                     }
@@ -95,21 +95,23 @@
                     chart.redraw();
                     return;
                 }
-                let index = categories.indexOf(valueTeminalBox.name);
-                if (index !== -1) {
-                    // Update existing series data and color
-                    chart.series[index].update({
-                        data: [valueTeminalBox.score],
-                        color: valueTeminalBox.color
-                    }, false);
-                } else {
-                    // Add new category, data, and color
-                    categories.push(valueTeminalBox.name);
-                    chart.addSeries({
-                        name: valueTeminalBox.name,
-                        data: [valueTeminalBox.score],
-                        color: valueTeminalBox.color
-                    }, false);
+            
+                for (const item of valueTeminalBox) {
+                    let index = categories.indexOf(item.name);
+                    if (index !== -1) {
+                        // Update existing series data and color
+                        chart.series[index].update({
+                            data: [item.score],
+                            color: item.color
+                        }, false);
+                    } else {
+                        categories.push(item.name);
+                        chart.addSeries({
+                            name: item.name,
+                            data: [item.score],
+                            color: item.color
+                        }, false);
+                    }
                 }
                 // Redraw the chart to apply changes
                 chart.redraw();
