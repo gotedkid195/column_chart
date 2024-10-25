@@ -18,9 +18,9 @@
     <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
 
     <script>
-        let configTeminalBox, valueTeminalBox, configAction;
-        let categories = [];
-        let seriesData = [];
+        let configTerminalBox, valueTerminalBox, configAction;
+        let categories = [''];
+        let seriesData = [{data: 0}];
         // Initialize Highcharts
         const chart = Highcharts.chart('container', {
             chart: {
@@ -76,18 +76,19 @@
         const eraWidget = new EraWidget();
         eraWidget.init({
             onConfiguration: (configuration) => {
-                configTeminalBox = configuration.realtime_configs[0];
+                configTerminalBox = configuration.realtime_configs[0];
                 configAction = configuration.actions[0];
             },
             onValues: (values) => {
-                let valueTeminalBox = values[configTeminalBox.id].value;
-                if (newValue === valueTeminalBox) {
+                valueTerminalBox = values[configTerminalBox.id].value;
+                console.log('valueTerminalBox', valueTerminalBox)
+                if (newValue === valueTerminalBox) {
                     return;
                 }
-                newValue = valueTeminalBox;
-                valueTeminalBox = JSON.parse(valueTeminalBox);
+                newValue = valueTerminalBox;
+                let value = JSON.parse(valueTerminalBox);
 
-                if (!valueTeminalBox || valueTeminalBox.length === 0) {
+                if (!value || value.length === 0) {
                     while (chart.series.length > 0) {
                         chart.series[0].remove(false); // Remove all series from the chart
                     }
@@ -96,20 +97,20 @@
                     return;
                 }
             
-                for (const item of valueTeminalBox) {
-                    let index = categories.indexOf(item.name);
+                for (const item of value) {
+                    let index = categories.indexOf(item.n);
                     if (index !== -1) {
                         // Update existing series data and color
                         chart.series[index].update({
-                            data: [item.score],
-                            color: item.color
+                            data: [item.s],
+                            color: '#' + item.c
                         }, false);
                     } else {
                         categories.push(item.name);
                         chart.addSeries({
-                            name: item.name,
-                            data: [item.score],
-                            color: item.color
+                            name: item.n,
+                            data: [item.s],
+                            color: '#' + item.c
                         }, false);
                     }
                 }
